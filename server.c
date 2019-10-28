@@ -11,24 +11,28 @@
 #include <unistd.h>
 #include <fcntl.h> 	
 #include <dirent.h>
-#include<pthread.h>
+#include <pthread.h>
 
 #define LIST "list"
 #define GET "get"
 
-char* ROOT = getenv("PWD");
+char* ROOT;
 void* clientAction(void* arg){
 	char data_to_send[1024];
 	char client_message[2048];
-	int client_fd = *((int *) arg;
-	recv(client_fd, client_message , 2048 , 0);
+	int client_fd = *((int *) arg);
+	ROOT = getenv("PWD");
+	recv(client_fd, client_message , 2048, 0);
 	//client_message, which is a request, should be processed accoding to application, here maybe for a file.
 	//use locks!, how is the question lol.
-	strcat(ROOT, client_message);
+	char* path = strcat(ROOT, client_message);
+	int bytes_read;
+	int fd;
+
 	if ((fd=open(path, O_RDONLY))!=-1){
 
 		while((bytes_read=read(fd, data_to_send, 1024))>0)
-			send(client_fd, data_to_send, bytes_read);
+			send(client_fd, data_to_send, bytes_read, 0);
 
 	}
 	printf("exiting client action\n");
@@ -38,7 +42,7 @@ void* clientAction(void* arg){
 
 
 
-int main(void)
+int main()
 {
 	int sockfd = 0;				        // listen - listen file descriptor
 	int connfd = 0;					// connect - connect file descriptor
@@ -74,6 +78,8 @@ int main(void)
   	}
 
 	pthread_t tid[60]; //handle 60 clients as of now.
+	int client_accepted;
+	int i = 0;
 	while (1)
   	{
 		
@@ -81,7 +87,7 @@ int main(void)
 
 		if(client_accepted < 0){
 			printf("error");
-			return ;
+			return -1;
 		}
 		else{
 			//pthread_create(&tid[i], NULL, socketThread, &newSocket)
