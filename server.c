@@ -17,24 +17,31 @@
 #define GET "get"
 
 char* ROOT;
+
+
 void* clientAction(void* arg){
 	char data_to_send[1024];
 	char client_message[2048];
 	int client_fd = *((int *) arg);
-	ROOT = getenv("PWD");
+	
 	recv(client_fd, client_message , 2048, 0);
-	//client_message, which is a request, should be processed accoding to application, here maybe for a file.
-	//use locks!, how is the question lol.
-	char* path = strcat(ROOT, client_message);
+	//client_message, which is a request, should be processed accoding to application, here maybe for a file.//To be done later.
 	int bytes_read;
-	int fd;
+	char* path = (char*)malloc(sizeof(*ROOT));
+	strcpy(path, ROOT);
+	char file[] = "/a.txt";
 
-	if ((fd=open(path, O_RDONLY))!=-1){
+	strcat(path, file);
 
+	// /home/thejas/MultithreadedServer/a.txt
+	int fd = open(path, O_RDONLY);
+	if (fd!=-1){
+		
 		while((bytes_read=read(fd, data_to_send, 1024))>0)
 			send(client_fd, data_to_send, bytes_read, 0);
 
 	}
+
 	printf("exiting client action\n");
 	close(client_fd);
 }
@@ -82,9 +89,8 @@ int main()
 	int i = 0;
 	while (1)
   	{
-		
+		ROOT = getenv("PWD");
 		client_accepted = accept(sockfd, (struct sockaddr *)NULL, NULL);
-
 		if(client_accepted < 0){
 			printf("error");
 			return -1;
@@ -96,10 +102,13 @@ int main()
 
 			}
 			else{
-			
 				pthread_join(tid[i++],NULL);			
 			
 			}
+		}
+		if(i >= 60){
+			printf("resetting\n");
+			i = 0;
 		}
 
 		// TODO:  Read if the client wants a GET or a LIST using a read() systemcall.
