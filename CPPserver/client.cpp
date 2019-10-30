@@ -72,12 +72,18 @@ int main(int argc, char* argv[]){
 
   for(;;){
     char s[300];
-
+    char test[300];
+    bzero(test, 301);
     cout << "enter your query here";
     bzero(s, 301);
     cin.getline(s, 300);
 
     write(listenFd, s, strlen(s));
+
+    read(listenFd, test, 301);
+    string tester(test);
+    cout << tester << endl;
+
   }
 
 

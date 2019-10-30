@@ -59,7 +59,7 @@ int main(int argc, char* argv[]){
 
   while(noThread < THREADS){
 
-    socklen_t len = sizeof(clntAdd);
+    socklen_t len = sizeof(clientAddr);
 
     cout << "listening" << endl;
 
@@ -97,6 +97,7 @@ void *task (void *dummyPtr){
     string tester(test);
     cout << tester << endl;
 
+    write(connFd, "got it", strlen("got it"));
     if(tester == "exit"){
       break;
     }
