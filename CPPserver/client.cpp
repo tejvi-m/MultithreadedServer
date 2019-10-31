@@ -16,15 +16,20 @@
 #include <time.h>
 #include <vector>
 
+#define THREADS 1
 using namespace std;
 
+int listenFd;
+
+void *listenBroadcast(void *dummyPtr);
 
 int main(int argc, char* argv[]){
 
-  int listenFd, portNum;
+  int portNum;
   bool loop = false;
   struct sockaddr_in serverAddr;
   struct hostent *server;
+  pthread_t threads[THREADS];
 
   //assume all the arguments are valid for now.
   //TODO add invalid arguments checking
@@ -68,6 +73,7 @@ int main(int argc, char* argv[]){
     return 0;
   }
 
+  pthread_create(&threads[0], NULL, listenBroadcast, NULL);
   //sending things to the server
 
   for(;;){
@@ -76,17 +82,21 @@ int main(int argc, char* argv[]){
     bzero(test, 301);
     cout << "enter your query here";
     bzero(s, 301);
+
     cin.getline(s, 300);
-
     write(listenFd, s, strlen(s));
+  }
 
+  pthread_join(threads[0], NULL);
+
+}
+
+void *listenBroadcast(void *dummyPtr){
+  while(1){
+    char test[300];
+    bzero(test, 301);
     read(listenFd, test, 301);
     string tester(test);
     cout << tester << endl;
-
   }
-
-
-
-
 }
