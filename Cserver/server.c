@@ -17,9 +17,11 @@
 #define GET "get"
 
 char* ROOT;
-
+pthread_mutex_t lock;//in case of multiple clients accessing a file at the same time
 
 void* clientAction(void* arg){
+
+    pthread_mutex_lock(&lock);
 	char data_to_send[1024];
 	char client_message[2048];
 	int client_fd = *((int *) arg);
@@ -29,10 +31,10 @@ void* clientAction(void* arg){
 	int bytes_read;
 	char* path = (char*)malloc(sizeof(*ROOT));
 	strcpy(path, ROOT);
-	char file[] = "/a.txt";
+	// char file[] = "/a.txt";
 
-	strcat(path, file);
-
+	strcat(path, client_message);
+    printf("%s\n", path);
 	// /home/thejas/MultithreadedServer/a.txt
 	int fd = open(path, O_RDONLY);
 	if (fd!=-1){
@@ -44,6 +46,8 @@ void* clientAction(void* arg){
 
 	printf("exiting client action\n");
 	close(client_fd);
+    pthread_mutex_unlock(&lock);
+
 }
 
 
@@ -73,7 +77,7 @@ int main()
 							// This structure is defined in <netinet/in.h>.
 
 	serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);	
-	serv_addr.sin_port = htons(5050);		// port:5050
+	serv_addr.sin_port = htons(5054);		// port:5050
 
 	bind(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr));	//        bind - bind a name to a socket
 
@@ -97,6 +101,10 @@ int main()
 		}
 		else{
 			//pthread_create(&tid[i], NULL, socketThread, &newSocket)
+            if (pthread_mutex_init(&lock, NULL) != 0) { 
+                printf("mutex init failed\n"); 
+                return 1; 
+            } 
 			if(pthread_create(&tid[i], NULL, clientAction, &client_accepted) != 0){
 				printf("failed");
 
@@ -117,6 +125,8 @@ int main()
 
 		
   	}
+    
+    pthread_mutex_destroy(&lock);
 	return 0;
 	
 }

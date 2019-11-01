@@ -19,7 +19,7 @@
 void* clientThread(void* arg){
  int sockfd = 0;					// sockfd - socket file descriptor
 	int bytesReceived = 0;				// Bytes received from server
-	char recvBuff[56000];				// Buffer to receive bytes from server
+	char recvBuff[256];				// Buffer to receive bytes from server
 
 	memset(recvBuff, '0', sizeof(recvBuff));	// memset() is used to fill a block of memory with a particular value.
 
@@ -38,8 +38,8 @@ void* clientThread(void* arg){
 	  /* Initialize sockaddr_in data structure */
 
 	serv_addr.sin_family = AF_INET;				
-	serv_addr.sin_port = htons(5050);  			// port:5050
-	serv_addr.sin_addr.s_addr = inet_addr("127.0.0.1");	// local host IP address: 127.0.0.1
+	serv_addr.sin_port = htons(5054);  			// port:5050
+	serv_addr.sin_addr.s_addr = inet_addr("127.0.0.1");	// as of now local host IP address: 127.0.0.1
 
 
 	  /* Attempt a connection */
@@ -50,10 +50,7 @@ void* clientThread(void* arg){
 		exit(0);
 	}
 
-    // TODO:  Send GET to the server using the "sockfd" file descriptor
-    //puts("sending get request\n");
-    // TODO:  Send the filename to the server using the "sockfd" file descriptor
-    
+  
    char* f_name = (char *) arg;
     
     write(sockfd, f_name, 256);
@@ -61,14 +58,13 @@ void* clientThread(void* arg){
     int totalBytes = 0;	
     while ((bytesReceived = read(sockfd, recvBuff, 256)) > 0)
     {
-        // TODO:  Use the write() system call to write those contents in the file which was created above.
-        //write(file, recvBuff, bytesReceived);
-        //printf("%d\n",bytesReceived);
+        printf("%s",recvBuff);
         //memset(recvBuff, '0', sizeof(recvBuff));
         totalBytes += bytesReceived;
     }
+    printf("\n");
     printf("Bytes received:%d\n",totalBytes);
-    printf("%s\n", recvBuff);
+    // printf("%s\n", recvBuff);
 }
 
 int main() 
@@ -94,25 +90,5 @@ int main()
     }
 
 
-/*     while(i< 60)
-    {
-        printf("in creation\n");
-        if( pthread_create(&tid[i], NULL, cientThread, NULL) != 0 )
-                printf("Failed to create thread\n");
-
-        i++;
-    }
-
-    // sleep(20);
-    i = 0;
-
-    while(i< 60)
-    {
-
-        pthread_join(tid[i++],NULL);
-        printf("%d:\n",i);
-
-    }
- */
 	return 0;
 }
