@@ -10,12 +10,16 @@
 #include <strings.h>
 #include <stdlib.h>
 #include <string>
+#include <vector>
 #include <pthread.h>
 
 #define THREADS 10
 
 using namespace std;
 
+vector<int> connections;
+
+void broadcast(char* message);
 void *task(void *);
 
 static int connFd;
@@ -64,6 +68,7 @@ int main(int argc, char* argv[]){
     cout << "listening" << endl;
 
     connFd = accept(listenFd, (struct sockaddr *) &clientAddr, &len);
+    connections.push_back(connFd);
 
     if(connFd < 0){
       cout << "cannot accept connection" << endl;
@@ -98,6 +103,7 @@ void *task (void *dummyPtr){
     cout << tester << endl;
 
     write(connFd, "got it", strlen("got it"));
+    broadcast(test);
     if(tester == "exit"){
       break;
     }
@@ -107,4 +113,11 @@ void *task (void *dummyPtr){
   cout << "closing thread and connection" << endl;
 
   close(connFd);
+}
+
+void broadcast(char * message){
+
+  for(int connection = 0; connection < connections.size(); connection++){
+    write(connections[connection], message, strlen(message));
+  }
 }
