@@ -4,3 +4,5 @@ data/*
 server.cp
 todo.txt
 *-exe
+client
+server
