@@ -3,19 +3,32 @@ import time
 import tkinter as tk
 
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-client.connect(('localhost', 5008))
+client.connect(('localhost', 5056))
 #
 # time.sleep(0.2)
 # print ('Received message:', client.recv(1024))
 
+def saveAsFile(enteredFileName):
+    buffer = 1024
+    wFile = open(enteredFileName, 'w')
+
+    while True:
+        part = client.recv(buffer).decode()
+        wFile.write(part)
+
+        if(len(part) < buffer):
+            break
+        part = ""
+
+    wFile.close()
 
 def show_entry_fields():
-    client.send(e1.get().encode())
-    print("File requested. will be copied to the current directory under the same name.")
+    enteredFileName = e1.get()
+    client.send(enteredFileName.encode())
     T = tk.Text(master, height=2, width=30)
     T.grid(row=5, column = 0)
-    T.insert(tk.END, client.recv(1024).decode())
-    # print ('Received message:', )
+    T.insert(tk.END, "File requested. will be copied to the current directory under the same name.")
+    saveAsFile(enteredFileName)
 
 master = tk.Tk()
 tk.Label(master,
