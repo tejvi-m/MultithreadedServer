@@ -124,10 +124,6 @@ int main()
 			i = 0;
 		}
 
-		// TODO:  Read if the client wants a GET or a LIST using a read() systemcall.
-
-		// If client sends a GET
-
 
   	}
 
